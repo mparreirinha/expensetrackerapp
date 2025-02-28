@@ -3,6 +3,7 @@ package com.parreirinha.expensetrackerapp.auth.service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +27,7 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    public String generateToken(HashMap<String, Object> claims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> claims, UserDetails userDetails) {
         return buildToken(claims, userDetails, expirationTime);
     }
 
@@ -52,7 +53,7 @@ public class JwtService {
         return claimResolver.apply(claims);
     }
 
-    private String buildToken(HashMap<String, Object> claims, UserDetails userDetails, long expirationTime) {
+    private String buildToken(Map<String, Object> claims, UserDetails userDetails, long expirationTime) {
         return Jwts
                 .builder()
                 .setClaims(claims)
