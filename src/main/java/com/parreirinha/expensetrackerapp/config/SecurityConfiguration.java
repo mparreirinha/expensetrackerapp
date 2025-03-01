@@ -3,7 +3,6 @@ package com.parreirinha.expensetrackerapp.config;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,12 +16,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    private final AuthenticationProvider authenticationProvider;
-
     private final JwtAuthenticatorFilter jwtAuthenticatorFilter;
 
-    public SecurityConfiguration(AuthenticationProvider authenticationProvider, JwtAuthenticatorFilter jwtAuthenticatorFilter) {
-        this.authenticationProvider = authenticationProvider;
+    public SecurityConfiguration(JwtAuthenticatorFilter jwtAuthenticatorFilter) {
         this.jwtAuthenticatorFilter = jwtAuthenticatorFilter;
     }
 
@@ -37,7 +33,6 @@ public class SecurityConfiguration {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthenticatorFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
