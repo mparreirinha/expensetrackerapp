@@ -2,8 +2,8 @@ package com.parreirinha.expensetrackerapp.auth.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.parreirinha.expensetrackerapp.exceptions.EmailAlreadyExistsException;
@@ -49,13 +49,12 @@ public class AuthenticationService {
     }
 
     public UserDetails authenticate(LoginUserDto loginUserDto) {
-        authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginUserDto.username(), 
                 loginUserDto.password())
         );
-        return userRepository.findByUsername(loginUserDto.username())
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return (UserDetails) authentication.getPrincipal();
     }
     
 }
