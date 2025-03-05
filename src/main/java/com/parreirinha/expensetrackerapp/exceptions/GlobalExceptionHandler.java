@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<String> handleUsernameNotFound(UsernameNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 
     @ExceptionHandler(DisabledException.class)
@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<String> handleLockedException(LockedException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User account is locked");
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
