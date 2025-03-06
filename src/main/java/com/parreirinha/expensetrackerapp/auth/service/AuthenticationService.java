@@ -14,6 +14,8 @@ import com.parreirinha.expensetrackerapp.user.dto.LoginUserDto;
 import com.parreirinha.expensetrackerapp.user.dto.RegisterUserDto;
 import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class AuthenticationService {
 
@@ -33,6 +35,7 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public void register(RegisterUserDto registerUserDto) {
         if (userRepository.existsByUsername(registerUserDto.username())) {
             throw new UsernameAlreadyExistsException("Username already exists");

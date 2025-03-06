@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.parreirinha.expensetrackerapp.user.dto.ChangePasswordDto;
 import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.parreirinha.expensetrackerapp.user.domain.User;
 
 @Service
@@ -23,11 +26,12 @@ public class UserSelfService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public void changePassword(String username, ChangePasswordDto changePasswordDto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         if (!passwordEncoder.matches(changePasswordDto.oldPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Old password is incorrect");
+            throw new IllegalArgumentException("Invalid Credentials");
         }
         user.setPassword(passwordEncoder.encode(changePasswordDto.newPassword()));
         userRepository.save(user);
