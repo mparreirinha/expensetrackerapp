@@ -5,6 +5,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.parreirinha.expensetrackerapp.user.dto.ChangePasswordDto;
+import com.parreirinha.expensetrackerapp.user.dto.UserResponseDto;
+import com.parreirinha.expensetrackerapp.user.mapper.UserMapper;
 import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -24,6 +26,12 @@ public class UserSelfService {
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    public UserResponseDto getUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return UserMapper.INSTANCE.toUserResponseDto(user);
     }
 
     @Transactional
