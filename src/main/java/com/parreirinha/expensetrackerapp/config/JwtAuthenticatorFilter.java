@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import com.parreirinha.expensetrackerapp.auth.service.JwtService;
+import com.parreirinha.expensetrackerapp.exceptions.RevokedTokenException;
+
 import org.springframework.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,6 +45,9 @@ public class JwtAuthenticatorFilter extends OncePerRequestFilter {
         }
         try {
             final String jwt = authorizationHeader.substring(7);
+            if (jwtService.isTokenRevoked(jwt)) {
+                throw new RevokedTokenException("Token is revoked");
+            }
             final String username = jwtService.extractUsername(jwt);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (username != null && authentication == null) {

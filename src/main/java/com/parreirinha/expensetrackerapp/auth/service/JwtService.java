@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,11 +18,17 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
+    private final RevokeTokenService revokeTokenService;
+
     @Value("${jwt.secret}")
     private String secretKey;
 
     @Value("${jwt.expiration}")
     private long expirationTime;
+
+    public JwtService(RevokeTokenService revokeTokenService) {
+        this.revokeTokenService = revokeTokenService;
+    }
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
@@ -29,6 +36,15 @@ public class JwtService {
 
     public String generateToken(Map<String, Object> claims, UserDetails userDetails) {
         return buildToken(claims, userDetails, expirationTime);
+    }
+
+    public void revokeToken(String token) {
+        String jwt = token.substring(7);
+        revokeTokenService.revokeToken(jwt, expirationTime);
+    }
+
+    public boolean isTokenRevoked(String token) {
+        return revokeTokenService.isTokenRevoked(token);
     }
 
     public String extractUsername(String token) {

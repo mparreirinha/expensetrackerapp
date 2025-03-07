@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 
 @RequestMapping("/auth")
@@ -43,5 +44,12 @@ public class AuthenticationController {
         LoginResponseDto loginResponseDto = new LoginResponseDto(jwtToken, jwtService.getExpirationTime());
         return ResponseEntity.ok(loginResponseDto);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+        jwtService.revokeToken(token);
+        return ResponseEntity.ok("User logged out successfully");
+    }
+    
     
 }
