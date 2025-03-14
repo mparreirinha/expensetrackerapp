@@ -12,12 +12,12 @@ public class RevokeTokenService {
         this.redisTemplate = redisTemplate;
     }
 
-    public void revokeToken(String token, long expirationTime) {
-        redisTemplate.opsForValue().set(token, "revoked", expirationTime);
+    public void revokeToken(String tokenId, long expirationTime) {
+        redisTemplate.opsForValue().set(tokenId, "revoked", expirationTime);
     }
 
-    public boolean isTokenRevoked(String token) {
-        return redisTemplate.hasKey(token);
+    public boolean isTokenRevoked(String tokenId) {
+        return redisTemplate.hasKey(tokenId);
     }
     
 }

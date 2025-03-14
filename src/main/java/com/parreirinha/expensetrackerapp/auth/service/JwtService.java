@@ -4,6 +4,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,15 +41,21 @@ public class JwtService {
 
     public void revokeToken(String token) {
         String jwt = token.substring(7);
-        revokeTokenService.revokeToken(jwt, expirationTime);
+        String tokenId = extractTokenId(jwt);
+        revokeTokenService.revokeToken(tokenId, expirationTime);
     }
 
     public boolean isTokenRevoked(String token) {
-        return revokeTokenService.isTokenRevoked(token);
+        String tokenId = extractTokenId(token);
+        return revokeTokenService.isTokenRevoked(tokenId);
     }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractTokenId(String token) {
+        return extractClaim(token, Claims::getId);
     }
 
     public long getExpirationTime() {
@@ -70,9 +77,11 @@ public class JwtService {
     }
 
     private String buildToken(Map<String, Object> claims, UserDetails userDetails, long expirationTime) {
+        String tokenId = UUID.randomUUID().toString();
         return Jwts
                 .builder()
                 .setClaims(claims)
+                .setId(tokenId)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
