@@ -19,7 +19,7 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-    private final RevokeTokenService revokeTokenService;
+    private final TokenService tokenService;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -27,8 +27,8 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    public JwtService(RevokeTokenService revokeTokenService) {
-        this.revokeTokenService = revokeTokenService;
+    public JwtService(TokenService revokeTokenService) {
+        this.tokenService = revokeTokenService;
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -41,13 +41,15 @@ public class JwtService {
 
     public void revokeToken(String token) {
         String jwt = token.substring(7);
+        String userId = extractUsername(jwt);
         String tokenId = extractTokenId(jwt);
-        revokeTokenService.revokeToken(tokenId, expirationTime);
+       tokenService.revokeToken(userId, tokenId);
     }
 
     public boolean isTokenRevoked(String token) {
+        String userId = extractUsername(token);
         String tokenId = extractTokenId(token);
-        return revokeTokenService.isTokenRevoked(tokenId);
+        return tokenService.isTokenRevoked(userId, tokenId);
     }
 
     public String extractUsername(String token) {
@@ -78,6 +80,7 @@ public class JwtService {
 
     private String buildToken(Map<String, Object> claims, UserDetails userDetails, long expirationTime) {
         String tokenId = UUID.randomUUID().toString();
+        tokenService.storeToken(userDetails.getUsername(), tokenId, expirationTime);
         return Jwts
                 .builder()
                 .setClaims(claims)
