@@ -15,19 +15,19 @@ public class TokenService {
     }
 
     public void storeToken(String userId, String tokenId, long expirationTime) {
-        String key = "user:" + userId + ":tokens";
-        redisTemplate.opsForSet().add(key, tokenId);
-        redisTemplate.expire(tokenId, Duration.ofMillis(expirationTime));
+        String key = "user:" + userId + ":token";
+        redisTemplate.delete(key);
+        redisTemplate.opsForValue().set(key, tokenId, Duration.ofMillis(expirationTime));
     }
 
     public void revokeToken(String userId, String tokenId) {
-        String key = "user:" + userId + ":tokens";
-        redisTemplate.opsForSet().remove(key, tokenId);
+        String key = "user:" + userId + ":token";
+        redisTemplate.delete(key);
     }
 
     public boolean isTokenRevoked(String userId, String tokenId) {
-        String key = "user:" + userId + ":tokens";
-        return !Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, tokenId));
+        String key = "user:" + userId + ":token";
+        return !tokenId.equals(redisTemplate.opsForValue().get(key));
     }
     
 }
