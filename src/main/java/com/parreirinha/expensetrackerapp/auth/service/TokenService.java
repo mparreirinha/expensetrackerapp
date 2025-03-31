@@ -16,7 +16,6 @@ public class TokenService {
 
     public void storeToken(String userId, String tokenId, long expirationTime) {
         String key = "user:" + userId + ":token";
-        redisTemplate.delete(key);
         redisTemplate.opsForValue().set(key, tokenId, Duration.ofMillis(expirationTime));
     }
 

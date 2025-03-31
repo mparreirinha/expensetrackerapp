@@ -46,5 +46,4 @@ public class UserSelfController {
         return ResponseEntity.ok("Password changed successfully");
     }
     
-    
 }
