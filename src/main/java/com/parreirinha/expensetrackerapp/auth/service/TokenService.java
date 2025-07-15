@@ -19,7 +19,7 @@ public class TokenService {
         redisTemplate.opsForValue().set(key, tokenId, Duration.ofMillis(expirationTime));
     }
 
-    public void revokeToken(String userId, String tokenId) {
+    public void revokeToken(String userId) {
         String key = "user:" + userId + ":token";
         redisTemplate.delete(key);
     }

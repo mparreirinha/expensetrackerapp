@@ -1,7 +1,6 @@
 package com.parreirinha.expensetrackerapp.user.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.parreirinha.expensetrackerapp.auth.service.JwtService;
 import com.parreirinha.expensetrackerapp.user.dto.ChangePasswordDto;
@@ -11,11 +10,6 @@ import com.parreirinha.expensetrackerapp.user.service.UserSelfService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.GetMapping;
-
 
 
 @RequestMapping("/me")
@@ -44,6 +38,12 @@ public class UserSelfController {
         userSelfService.changePassword(userDetails.getUsername(), changePasswordDto);
         jwtService.revokeToken(token);
         return ResponseEntity.ok("Password changed successfully");
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteSelf(@AuthenticationPrincipal UserDetails userDetails) {
+        userSelfService.deleteSelf(userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
     
 }

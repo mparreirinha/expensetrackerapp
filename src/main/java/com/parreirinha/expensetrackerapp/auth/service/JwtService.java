@@ -42,8 +42,7 @@ public class JwtService {
     public void revokeToken(String token) {
         String jwt = token.substring(7);
         String userId = extractUsername(jwt);
-        String tokenId = extractTokenId(jwt);
-       tokenService.revokeToken(userId, tokenId);
+       tokenService.revokeToken(userId);
     }
 
     public boolean isTokenRevoked(String token) {

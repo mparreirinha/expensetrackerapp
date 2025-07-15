@@ -1,5 +1,8 @@
 package com.parreirinha.expensetrackerapp.user.service;
 
+import com.parreirinha.expensetrackerapp.auth.service.TokenService;
+import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
+import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,14 +20,23 @@ import com.parreirinha.expensetrackerapp.user.domain.User;
 public class UserSelfService {
 
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+    private final TransactionRepository transactionRepository;
+    private final TokenService tokenService;
 
     private final PasswordEncoder passwordEncoder;
 
     public UserSelfService(
         UserRepository userRepository,
+        CategoryRepository categoryRepository,
+        TransactionRepository transactionRepository,
+        TokenService tokenService,
         PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
+        this.transactionRepository = transactionRepository;
+        this.tokenService = tokenService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -43,6 +55,16 @@ public class UserSelfService {
         }
         user.setPassword(passwordEncoder.encode(changePasswordDto.newPassword()));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteSelf(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        categoryRepository.deleteByUser(user);
+        transactionRepository.deleteByUser(user);
+        tokenService.revokeToken(user.getId().toString());
+        userRepository.delete(user);
     }
     
 }

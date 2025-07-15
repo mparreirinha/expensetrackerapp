@@ -1,5 +1,6 @@
 package com.parreirinha.expensetrackerapp.user.service;
 
+import com.parreirinha.expensetrackerapp.auth.service.TokenService;
 import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
 import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
@@ -21,13 +22,16 @@ public class UserAdminService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
+    private final TokenService tokenService;
 
     public UserAdminService(UserRepository userRepository,
                             CategoryRepository categoryRepository,
-                            TransactionRepository transactionRepository) {
+                            TransactionRepository transactionRepository,
+                            TokenService tokenService) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.transactionRepository = transactionRepository;
+        this.tokenService = tokenService;
     }
 
     public List<UserAdminResponseDto> getUsers() {
@@ -49,6 +53,7 @@ public class UserAdminService {
             throw new ForbiddenException("Delete Admins is not allowed");
         categoryRepository.deleteByUser(user);
         transactionRepository.deleteByUser(user);
+        tokenService.revokeToken(user.getId().toString());
         userRepository.delete(user);
     }
 
