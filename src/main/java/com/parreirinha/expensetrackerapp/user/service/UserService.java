@@ -30,16 +30,6 @@ public class UserService {
         this.tokenService = tokenService;
     }
 
-    public User getUserById(UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    }
-
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    }
-
     @Transactional
     public void deleteUser(User user) {
         categoryService.deleteByUser(user);

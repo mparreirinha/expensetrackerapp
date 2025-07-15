@@ -21,25 +21,28 @@ public class UserSelfService {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final UserQueryService userQueryService;
     private final PasswordEncoder passwordEncoder;
 
     public UserSelfService(
         UserRepository userRepository,
         UserService userService,
+        UserQueryService userQueryService,
         PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.userQueryService = userQueryService;
         this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponseDto getUser(String username) {
-        return UserMapper.INSTANCE.toUserResponseDto(userService.getUserByUsername(username));
+        return UserMapper.INSTANCE.toUserResponseDto(userQueryService.getUserByUsername(username));
     }
 
     @Transactional
     public void changePassword(String username, ChangePasswordDto changePasswordDto) {
-        User user = userService.getUserByUsername(username);
+        User user = userQueryService.getUserByUsername(username);
         if (!passwordEncoder.matches(changePasswordDto.oldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid Credentials");
         }
@@ -49,7 +52,7 @@ public class UserSelfService {
 
     @Transactional
     public void deleteSelf(String username) {
-        User user = userService.getUserByUsername(username);
+        User user = userQueryService.getUserByUsername(username);
         userService.deleteUser(user);
     }
     

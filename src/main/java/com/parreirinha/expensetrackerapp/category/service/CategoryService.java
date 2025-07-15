@@ -8,8 +8,7 @@ import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
 import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
 import com.parreirinha.expensetrackerapp.user.domain.User;
-import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
-import com.parreirinha.expensetrackerapp.user.service.UserService;
+import com.parreirinha.expensetrackerapp.user.service.UserQueryService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -20,23 +19,23 @@ import java.util.UUID;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final UserService userService;
+    private final UserQueryService userQueryService;
 
-    public CategoryService(CategoryRepository categoryRepository, UserService userService) {
+    public CategoryService(CategoryRepository categoryRepository, UserQueryService userQueryService) {
         this.categoryRepository = categoryRepository;
-        this.userService= userService;
+        this.userQueryService = userQueryService;
     }
 
     @Transactional
     public void createCategory(String username, CategoryRequestDto dto) {
-        User user = userService.getUserByUsername(username);
+        User user = userQueryService.getUserByUsername(username);
         Category category = CategoryMapper.INSTANCE.toCategory(dto);
         category.setUser(user);
         categoryRepository.save(category);
     }
 
     public List<CategoryResponseDto> getCategories(String username) {
-        User user = userService.getUserByUsername(username);
+        User user = userQueryService.getUserByUsername(username);
         List<Category> categories = categoryRepository.findByUser(user);
         return CategoryMapper.INSTANCE.toCategoryResponseDtoList(categories);
     }

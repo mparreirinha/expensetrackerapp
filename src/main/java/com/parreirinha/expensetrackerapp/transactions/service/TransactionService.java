@@ -13,6 +13,7 @@ import com.parreirinha.expensetrackerapp.transactions.mapper.TransactionMapper;
 import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
 import com.parreirinha.expensetrackerapp.user.domain.User;
 import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
+import com.parreirinha.expensetrackerapp.user.service.UserQueryService;
 import com.parreirinha.expensetrackerapp.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,20 +26,20 @@ import java.util.UUID;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private final UserService userService;
+    private final UserQueryService userQueryService;
     private final CategoryService categoryService;
 
     public TransactionService(TransactionRepository transactionRepository,
-                              UserService userService,
+                              UserQueryService userQueryService,
                               CategoryService categoryService) {
         this.transactionRepository = transactionRepository;
-        this.userService = userService;
+        this.userQueryService = userQueryService;
         this.categoryService = categoryService;
     }
 
     @Transactional
     public void createTransaction(String username, TransactionRequestDto dto) {
-        User user = userService.getUserByUsername(username);
+        User user = userQueryService.getUserByUsername(username);
         Category category = null;
         if (dto.categoryId() != null)
             category = categoryService.findCategoryById(dto.categoryId());
@@ -49,7 +50,7 @@ public class TransactionService {
     }
 
     public List<TransactionResponseDto> getTransactions(String username) {
-        User user = userService.getUserByUsername(username);
+        User user = userQueryService.getUserByUsername(username);
         return TransactionMapper.INSTANCE.toTransactionResponseDtoList(getTransactionsByUser(user));
     }
 
@@ -84,7 +85,7 @@ public class TransactionService {
     }
 
     public BigDecimal getBalance(String username) {
-        User user = userService.getUserByUsername(username);
+        User user = userQueryService.getUserByUsername(username);
         List<Transaction> transactions = getTransactionsByUser(user);
         return transactions.stream()
                 .map(t -> t.getType() == TransactionType.INCOME ?

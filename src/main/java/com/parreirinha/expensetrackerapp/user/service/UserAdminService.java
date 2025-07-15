@@ -21,11 +21,14 @@ public class UserAdminService {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final UserQueryService userQueryService;
 
     public UserAdminService(UserRepository userRepository,
-                            UserService userService) {
+                            UserService userService,
+                            UserQueryService userQueryService) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.userQueryService = userQueryService;
     }
 
     public List<UserAdminResponseDto> getUsers() {
@@ -34,12 +37,12 @@ public class UserAdminService {
     }
 
     public UserAdminResponseDto getUser(UUID id) {
-        return UserMapper.INSTANCE.toUserAdminResponseDto(userService.getUserById(id));
+        return UserMapper.INSTANCE.toUserAdminResponseDto(userQueryService.getUserById(id));
     }
 
     @Transactional
     public void deleteUser(UUID id) {
-        User user = userService.getUserById(id);
+        User user = userQueryService.getUserById(id);
         if (user.getRole() == Role.ADMIN)
             throw new ForbiddenException("Delete Admins is not allowed");
         userService.deleteUser(user);
