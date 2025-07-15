@@ -32,6 +32,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                     .requestMatchers("/transactions/**").hasRole("USER")
+                    .requestMatchers("/categories/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
