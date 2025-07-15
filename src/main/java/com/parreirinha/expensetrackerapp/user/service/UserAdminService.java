@@ -1,7 +1,9 @@
 package com.parreirinha.expensetrackerapp.user.service;
 
+import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
 import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
+import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
 import com.parreirinha.expensetrackerapp.user.domain.Role;
 import com.parreirinha.expensetrackerapp.user.domain.User;
 import com.parreirinha.expensetrackerapp.user.dto.UserAdminResponseDto;
@@ -17,9 +19,15 @@ import java.util.UUID;
 public class UserAdminService {
 
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+    private final TransactionRepository transactionRepository;
 
-    public UserAdminService(UserRepository userRepository) {
+    public UserAdminService(UserRepository userRepository,
+                            CategoryRepository categoryRepository,
+                            TransactionRepository transactionRepository) {
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public List<UserAdminResponseDto> getUsers() {
@@ -39,6 +47,9 @@ public class UserAdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         if (user.getRole() == Role.ADMIN)
             throw new ForbiddenException("Delete Admins is not allowed");
+        categoryRepository.deleteByUser(user);
+        transactionRepository.deleteByUser(user);
         userRepository.delete(user);
     }
+
 }

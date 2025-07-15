@@ -9,4 +9,5 @@ import com.parreirinha.expensetrackerapp.transactions.domain.Transaction;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
     List<Transaction> findByUser(User user);
+    void deleteByUser(User user);
 }

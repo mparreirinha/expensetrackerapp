@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.parreirinha.expensetrackerapp.category.domain.Category;
 import com.parreirinha.expensetrackerapp.user.domain.User;
 
 import jakarta.persistence.Column;
@@ -22,7 +23,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "user")
+@ToString(exclude = {"user", "category"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Transaction {
 
@@ -41,7 +42,9 @@ public class Transaction {
     @Column(nullable = false)
     private LocalDate date;
 
-    private String category;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

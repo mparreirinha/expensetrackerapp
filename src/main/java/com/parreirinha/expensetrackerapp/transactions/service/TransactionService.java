@@ -1,5 +1,7 @@
 package com.parreirinha.expensetrackerapp.transactions.service;
 
+import com.parreirinha.expensetrackerapp.category.domain.Category;
+import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
 import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
 import com.parreirinha.expensetrackerapp.transactions.domain.Transaction;
@@ -22,17 +24,26 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository) {
+    public TransactionService(TransactionRepository transactionRepository,
+                              UserRepository userRepository,
+                              CategoryRepository categoryRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional
     public void createTransaction(String username, TransactionRequestDto dto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Category category = null;
+        if (dto.categoryId() != null)
+            category = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         Transaction transaction = TransactionMapper.INSTANCE.toTransaction(dto);
+        transaction.setCategory(category);
         transaction.setUser(user);
         transactionRepository.save(transaction);
     }
@@ -58,8 +69,12 @@ public class TransactionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
         if (!transaction.getUser().getUsername().equals(username))
             throw new ForbiddenException("You do not have permission to update this transaction");
+        Category category = null;
+        if (dto.categoryId() != null)
+            category = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         transaction.setAmount(dto.amount());
-        transaction.setCategory(dto.category());
+        transaction.setCategory(category);
         transaction.setType(TransactionType.valueOf(dto.type()));
         transaction.setDate(dto.date());
         transactionRepository.save(transaction);
