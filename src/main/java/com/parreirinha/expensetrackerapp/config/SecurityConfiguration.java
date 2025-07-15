@@ -5,6 +5,7 @@ import java.util.List;
 import com.parreirinha.expensetrackerapp.user.domain.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.keyvalue.repository.query.PredicateQueryCreator;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -29,10 +30,13 @@ public class SecurityConfiguration {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/v3/api-docs/**",
+                            "/swagger-ui.html",
+                            "/swagger-ui/**").permitAll()
                 .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/transactions/**").hasRole("USER")
-                    .requestMatchers("/categories/**").hasRole("USER")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/transactions/**").hasRole("USER")
+                .requestMatchers("/categories/**").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
