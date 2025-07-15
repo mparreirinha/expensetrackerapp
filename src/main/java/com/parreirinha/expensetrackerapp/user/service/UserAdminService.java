@@ -20,18 +20,12 @@ import java.util.UUID;
 public class UserAdminService {
 
     private final UserRepository userRepository;
-    private final CategoryRepository categoryRepository;
-    private final TransactionRepository transactionRepository;
-    private final TokenService tokenService;
+    private final UserService userService;
 
     public UserAdminService(UserRepository userRepository,
-                            CategoryRepository categoryRepository,
-                            TransactionRepository transactionRepository,
-                            TokenService tokenService) {
+                            UserService userService) {
         this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
-        this.transactionRepository = transactionRepository;
-        this.tokenService = tokenService;
+        this.userService = userService;
     }
 
     public List<UserAdminResponseDto> getUsers() {
@@ -40,21 +34,15 @@ public class UserAdminService {
     }
 
     public UserAdminResponseDto getUser(UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return UserMapper.INSTANCE.toUserAdminResponseDto(user);
+        return UserMapper.INSTANCE.toUserAdminResponseDto(userService.getUserById(id));
     }
 
     @Transactional
     public void deleteUser(UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = userService.getUserById(id);
         if (user.getRole() == Role.ADMIN)
             throw new ForbiddenException("Delete Admins is not allowed");
-        categoryRepository.deleteByUser(user);
-        transactionRepository.deleteByUser(user);
-        tokenService.revokeToken(user.getId().toString());
-        userRepository.delete(user);
+        userService.deleteUser(user);
     }
 
 }

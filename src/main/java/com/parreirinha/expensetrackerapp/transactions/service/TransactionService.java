@@ -2,6 +2,7 @@ package com.parreirinha.expensetrackerapp.transactions.service;
 
 import com.parreirinha.expensetrackerapp.category.domain.Category;
 import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
+import com.parreirinha.expensetrackerapp.category.service.CategoryService;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
 import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
 import com.parreirinha.expensetrackerapp.transactions.domain.Transaction;
@@ -12,6 +13,7 @@ import com.parreirinha.expensetrackerapp.transactions.mapper.TransactionMapper;
 import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
 import com.parreirinha.expensetrackerapp.user.domain.User;
 import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
+import com.parreirinha.expensetrackerapp.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,25 +25,23 @@ import java.util.UUID;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private final UserRepository userRepository;
-    private final CategoryRepository categoryRepository;
+    private final UserService userService;
+    private final CategoryService categoryService;
 
     public TransactionService(TransactionRepository transactionRepository,
-                              UserRepository userRepository,
-                              CategoryRepository categoryRepository) {
+                              UserService userService,
+                              CategoryService categoryService) {
         this.transactionRepository = transactionRepository;
-        this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
+        this.userService = userService;
+        this.categoryService = categoryService;
     }
 
     @Transactional
     public void createTransaction(String username, TransactionRequestDto dto) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = userService.getUserByUsername(username);
         Category category = null;
         if (dto.categoryId() != null)
-            category = categoryRepository.findById(dto.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            category = categoryService.findCategoryById(dto.categoryId());
         Transaction transaction = TransactionMapper.INSTANCE.toTransaction(dto);
         transaction.setCategory(category);
         transaction.setUser(user);
@@ -49,15 +49,12 @@ public class TransactionService {
     }
 
     public List<TransactionResponseDto> getTransactions(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        List<Transaction> transactions = transactionRepository.findByUser(user);
-        return TransactionMapper.INSTANCE.toTransactionResponseDtoList(transactions);
+        User user = userService.getUserByUsername(username);
+        return TransactionMapper.INSTANCE.toTransactionResponseDtoList(getTransactionsByUser(user));
     }
 
     public TransactionResponseDto getTransaction(String username, UUID id) {
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+        Transaction transaction = getTransactionById(id);
         if (!transaction.getUser().getUsername().equals(username))
             throw new ForbiddenException("You do not have access to this transaction");
         return TransactionMapper.INSTANCE.toTransactionResponseDto(transaction);
@@ -65,14 +62,12 @@ public class TransactionService {
 
     @Transactional
     public void updateTransaction(UUID id, String username, TransactionRequestDto dto) {
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+        Transaction transaction = getTransactionById(id);
         if (!transaction.getUser().getUsername().equals(username))
             throw new ForbiddenException("You do not have permission to update this transaction");
         Category category = null;
         if (dto.categoryId() != null)
-            category = categoryRepository.findById(dto.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            category = categoryService.findCategoryById(dto.categoryId());
         transaction.setAmount(dto.amount());
         transaction.setCategory(category);
         transaction.setType(TransactionType.valueOf(dto.type()));
@@ -82,21 +77,33 @@ public class TransactionService {
 
     @Transactional
     public void deleteTransaction(UUID id, String username) {
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+        Transaction transaction = getTransactionById(id);
         if (!transaction.getUser().getUsername().equals(username))
             throw new ForbiddenException("You do not have permission to delete this transaction");
         transactionRepository.delete(transaction);
     }
 
     public BigDecimal getBalance(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        List<Transaction> transactions = transactionRepository.findByUser(user);
+        User user = userService.getUserByUsername(username);
+        List<Transaction> transactions = getTransactionsByUser(user);
         return transactions.stream()
                 .map(t -> t.getType() == TransactionType.INCOME ?
                         t.getAmount() : t.getAmount().negate())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public Transaction getTransactionById(UUID id) {
+        return transactionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+    }
+
+    public List<Transaction> getTransactionsByUser(User user) {
+        return transactionRepository.findByUser(user);
+    }
+
+    @Transactional
+    public void deleteByUser(User user) {
+        transactionRepository.deleteByUser(user);
     }
 
 }
