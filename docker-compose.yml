@@ -1,4 +1,22 @@
 services:
+  backend:
+    build:
+      context: ./backend
+    container_name: expensetracker_backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    networks:
+      - redis_network
+      - db-network
+
   db:
     image: postgres
     environment:
@@ -9,6 +27,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    networks:
+      - db-network
 
   redis:
     image: redis
@@ -25,4 +45,6 @@ volumes:
 
 networks:
   redis_network:
+    driver: bridge
+  db-network:
     driver: bridge
