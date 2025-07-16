@@ -7,9 +7,12 @@ import com.parreirinha.expensetrackerapp.category.mapper.CategoryMapper;
 import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
 import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
+import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
 import com.parreirinha.expensetrackerapp.user.domain.User;
-import com.parreirinha.expensetrackerapp.user.service.UserQueryService;
+import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,23 +22,27 @@ import java.util.UUID;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final UserQueryService userQueryService;
+    private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
-    public CategoryService(CategoryRepository categoryRepository, UserQueryService userQueryService) {
+    public CategoryService(CategoryRepository categoryRepository,
+                             UserRepository userRepository,
+                             TransactionRepository transactionRepository) {
         this.categoryRepository = categoryRepository;
-        this.userQueryService = userQueryService;
+        this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Transactional
     public void createCategory(String username, CategoryRequestDto dto) {
-        User user = userQueryService.getUserByUsername(username);
+        User user = getUserByUsername(username);
         Category category = CategoryMapper.INSTANCE.toCategory(dto);
         category.setUser(user);
         categoryRepository.save(category);
     }
 
     public List<CategoryResponseDto> getCategories(String username) {
-        User user = userQueryService.getUserByUsername(username);
+        User user = getUserByUsername(username);
         List<Category> categories = categoryRepository.findByUser(user);
         return CategoryMapper.INSTANCE.toCategoryResponseDtoList(categories);
     }
@@ -61,17 +68,18 @@ public class CategoryService {
         Category category = findCategoryById(id);
         if (!category.getUser().getUsername().equals(username))
             throw new ForbiddenException("You do not have permission to delete this category");
+        transactionRepository.unsetCategoryFromTransactions(category);
         categoryRepository.delete(category);
     }
 
-    public Category findCategoryById(UUID id) {
+    private Category findCategoryById(UUID id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
     }
 
-    @Transactional
-    public void deleteByUser(User user) {
-        categoryRepository.deleteByUser(user);
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
 }

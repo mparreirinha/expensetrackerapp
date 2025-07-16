@@ -25,9 +25,10 @@ public interface UserMapper {
 
     @Named("maskEmail")
     static String maskEmail(String email) {
-        if (email.indexOf('@') < 4) {
+        if (email == null || !email.contains("@"))
+            return "****@****";
+        if (email.indexOf('@') < 4)
             return email.substring(0, 1) + "****" + email.substring(email.indexOf('@'));
-        }
         return email.substring(0, 3) + "****" + email.substring(email.indexOf('@'));
     }
     

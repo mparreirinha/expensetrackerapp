@@ -1,7 +1,7 @@
 package com.parreirinha.expensetrackerapp.transactions.service;
 
 import com.parreirinha.expensetrackerapp.category.domain.Category;
-import com.parreirinha.expensetrackerapp.category.service.CategoryService;
+import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
 import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
 import com.parreirinha.expensetrackerapp.transactions.domain.Transaction;
@@ -11,8 +11,10 @@ import com.parreirinha.expensetrackerapp.transactions.dto.TransactionResponseDto
 import com.parreirinha.expensetrackerapp.transactions.mapper.TransactionMapper;
 import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
 import com.parreirinha.expensetrackerapp.user.domain.User;
-import com.parreirinha.expensetrackerapp.user.service.UserQueryService;
+import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,23 +25,23 @@ import java.util.UUID;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private final UserQueryService userQueryService;
-    private final CategoryService categoryService;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     public TransactionService(TransactionRepository transactionRepository,
-                              UserQueryService userQueryService,
-                              CategoryService categoryService) {
+                              UserRepository userRepository,
+                              CategoryRepository categoryRepository) {
         this.transactionRepository = transactionRepository;
-        this.userQueryService = userQueryService;
-        this.categoryService = categoryService;
+        this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional
     public void createTransaction(String username, TransactionRequestDto dto) {
-        User user = userQueryService.getUserByUsername(username);
+        User user = getUserByUsername(username);
         Category category = null;
         if (dto.categoryId() != null)
-            category = categoryService.findCategoryById(dto.categoryId());
+           category = getCategoryById(dto.categoryId());
         Transaction transaction = TransactionMapper.INSTANCE.toTransaction(dto);
         transaction.setCategory(category);
         transaction.setUser(user);
@@ -47,7 +49,7 @@ public class TransactionService {
     }
 
     public List<TransactionResponseDto> getTransactions(String username) {
-        User user = userQueryService.getUserByUsername(username);
+        User user = getUserByUsername(username);
         return TransactionMapper.INSTANCE.toTransactionResponseDtoList(getTransactionsByUser(user));
     }
 
@@ -65,7 +67,7 @@ public class TransactionService {
             throw new ForbiddenException("You do not have permission to update this transaction");
         Category category = null;
         if (dto.categoryId() != null)
-            category = categoryService.findCategoryById(dto.categoryId());
+            category = getCategoryById(dto.categoryId());
         transaction.setAmount(dto.amount());
         transaction.setCategory(category);
         transaction.setType(TransactionType.valueOf(dto.type()));
@@ -82,7 +84,7 @@ public class TransactionService {
     }
 
     public BigDecimal getBalance(String username) {
-        User user = userQueryService.getUserByUsername(username);
+        User user = getUserByUsername(username);
         List<Transaction> transactions = getTransactionsByUser(user);
         return transactions.stream()
                 .map(t -> t.getType() == TransactionType.INCOME ?
@@ -99,9 +101,13 @@ public class TransactionService {
         return transactionRepository.findByUser(user);
     }
 
-    @Transactional
-    public void deleteByUser(User user) {
-        transactionRepository.deleteByUser(user);
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    private Category getCategoryById(UUID id) {
+        return categoryRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+    }
 }
