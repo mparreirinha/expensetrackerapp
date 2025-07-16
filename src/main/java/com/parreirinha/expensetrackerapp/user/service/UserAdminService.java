@@ -1,10 +1,6 @@
 package com.parreirinha.expensetrackerapp.user.service;
 
-import com.parreirinha.expensetrackerapp.auth.service.TokenService;
-import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
-import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
-import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
 import com.parreirinha.expensetrackerapp.user.domain.Role;
 import com.parreirinha.expensetrackerapp.user.domain.User;
 import com.parreirinha.expensetrackerapp.user.dto.UserAdminResponseDto;

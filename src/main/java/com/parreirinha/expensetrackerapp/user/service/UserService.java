@@ -2,14 +2,11 @@ package com.parreirinha.expensetrackerapp.user.service;
 
 import com.parreirinha.expensetrackerapp.auth.service.TokenService;
 import com.parreirinha.expensetrackerapp.category.service.CategoryService;
-import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
 import com.parreirinha.expensetrackerapp.transactions.service.TransactionService;
 import com.parreirinha.expensetrackerapp.user.domain.User;
 import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class UserService {

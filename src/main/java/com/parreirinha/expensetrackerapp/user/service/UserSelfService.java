@@ -1,9 +1,5 @@
 package com.parreirinha.expensetrackerapp.user.service;
 
-import com.parreirinha.expensetrackerapp.auth.service.TokenService;
-import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
-import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

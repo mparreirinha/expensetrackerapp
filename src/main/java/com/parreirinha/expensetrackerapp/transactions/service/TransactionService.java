@@ -1,7 +1,6 @@
 package com.parreirinha.expensetrackerapp.transactions.service;
 
 import com.parreirinha.expensetrackerapp.category.domain.Category;
-import com.parreirinha.expensetrackerapp.category.repository.CategoryRepository;
 import com.parreirinha.expensetrackerapp.category.service.CategoryService;
 import com.parreirinha.expensetrackerapp.exceptions.ForbiddenException;
 import com.parreirinha.expensetrackerapp.exceptions.ResourceNotFoundException;
@@ -12,9 +11,7 @@ import com.parreirinha.expensetrackerapp.transactions.dto.TransactionResponseDto
 import com.parreirinha.expensetrackerapp.transactions.mapper.TransactionMapper;
 import com.parreirinha.expensetrackerapp.transactions.repository.TransactionRepository;
 import com.parreirinha.expensetrackerapp.user.domain.User;
-import com.parreirinha.expensetrackerapp.user.repository.UserRepository;
 import com.parreirinha.expensetrackerapp.user.service.UserQueryService;
-import com.parreirinha.expensetrackerapp.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

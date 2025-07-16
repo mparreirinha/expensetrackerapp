@@ -15,6 +15,9 @@ public interface TransactionMapper {
 
     TransactionMapper INSTANCE = Mappers.getMapper(TransactionMapper.class);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "category", ignore = true)
     Transaction toTransaction(TransactionRequestDto dto);
 
     TransactionResponseDto toTransactionResponseDto(Transaction transaction);

@@ -2,10 +2,8 @@ package com.parreirinha.expensetrackerapp.config;
 
 import java.util.List;
 
-import com.parreirinha.expensetrackerapp.user.domain.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.keyvalue.repository.query.PredicateQueryCreator;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
