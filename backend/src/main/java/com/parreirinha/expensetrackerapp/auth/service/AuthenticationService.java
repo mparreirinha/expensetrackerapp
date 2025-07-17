@@ -37,12 +37,10 @@ public class AuthenticationService {
 
     @Transactional
     public void register(RegisterUserDto registerUserDto) {
-        if (userRepository.existsByUsername(registerUserDto.username())) {
+        if (userRepository.existsByUsername(registerUserDto.username()))
             throw new UsernameAlreadyExistsException("Username already exists");
-        }
-        if (userRepository.existsByEmail(registerUserDto.email())) {
+        if (userRepository.existsByEmail(registerUserDto.email()))
             throw new EmailAlreadyExistsException("Email already exists");
-        }
         User user = new User();
         user.setUsername(registerUserDto.username());
         user.setEmail(registerUserDto.email());

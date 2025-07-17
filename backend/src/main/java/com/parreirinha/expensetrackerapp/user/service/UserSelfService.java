@@ -46,9 +46,10 @@ public class UserSelfService {
     @Transactional
     public void changePassword(String username, ChangePasswordDto changePasswordDto) {
         User user = getUserByUsername(username);
-        if (!passwordEncoder.matches(changePasswordDto.oldPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(changePasswordDto.oldPassword(), user.getPassword()))
             throw new IllegalArgumentException("Invalid Credentials");
-        }
+        if (passwordEncoder.matches(changePasswordDto.newPassword(),user.getPassword()))
+            throw new IllegalArgumentException("New password must be different from the old password");
         user.setPassword(passwordEncoder.encode(changePasswordDto.newPassword()));
         userRepository.save(user);
     }
