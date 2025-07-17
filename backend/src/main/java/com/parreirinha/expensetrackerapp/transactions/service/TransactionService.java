@@ -70,7 +70,7 @@ public class TransactionService {
             category = getCategoryById(dto.categoryId());
         transaction.setAmount(dto.amount());
         transaction.setCategory(category);
-        transaction.setType(TransactionType.valueOf(dto.type()));
+        transaction.setType(dto.type());
         transaction.setDate(dto.date());
         transactionRepository.save(transaction);
     }

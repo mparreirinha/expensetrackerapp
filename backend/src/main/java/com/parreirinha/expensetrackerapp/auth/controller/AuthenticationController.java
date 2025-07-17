@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +50,7 @@ public class AuthenticationController {
         @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "text/plain"))
     })
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterUserDto registerUserDto) {
         authenticationService.register(registerUserDto);
         return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
     }
@@ -65,7 +66,7 @@ public class AuthenticationController {
         @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "text/plain"))
     })
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginUserDto loginUserDto) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginUserDto loginUserDto) {
         UserDetails authenticatedUser = authenticationService.authenticate(loginUserDto);
         String jwtToken = jwtService.generateToken(authenticatedUser);
         LoginResponseDto loginResponseDto = new LoginResponseDto(jwtToken, jwtService.getExpirationTime());

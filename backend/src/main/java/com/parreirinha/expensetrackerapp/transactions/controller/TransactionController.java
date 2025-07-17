@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +59,7 @@ public class TransactionController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<TransactionResponseDto> getTransaction(@AuthenticationPrincipal UserDetails userDetails,
-                                                                 @PathVariable UUID id) {
+                                                                 @PathVariable @NotNull UUID id) {
         return ResponseEntity.ok(transactionService.getTransaction(userDetails.getUsername(), id));
     }
 
@@ -71,7 +73,7 @@ public class TransactionController {
     })
     @PostMapping
     public ResponseEntity<Void> createTransaction(@AuthenticationPrincipal UserDetails userDetails,
-                                                  @RequestBody TransactionRequestDto dto) {
+                                                  @RequestBody @Valid TransactionRequestDto dto) {
         transactionService.createTransaction(userDetails.getUsername(), dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -86,8 +88,8 @@ public class TransactionController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateTransaction(@AuthenticationPrincipal UserDetails userDetails,
-                                                  @PathVariable UUID id,
-                                                  @RequestBody TransactionRequestDto dto) {
+                                                  @PathVariable @NotNull UUID id,
+                                                  @RequestBody @Valid TransactionRequestDto dto) {
         transactionService.updateTransaction(id, userDetails.getUsername(), dto);
         return ResponseEntity.noContent().build();
     }
@@ -102,7 +104,7 @@ public class TransactionController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTransaction(@AuthenticationPrincipal UserDetails userDetails,
-                                                  @PathVariable UUID id) {
+                                                  @PathVariable @NotNull UUID id) {
         transactionService.deleteTransaction(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }

@@ -9,12 +9,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.UUID;
     description = "Endpoints for managing user-defined transaction categories"
 )
 @RequestMapping("/categories")
+@Validated
 @RestController
 public class CategoryController {
 
@@ -56,7 +60,7 @@ public class CategoryController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDto> getCategory(@AuthenticationPrincipal UserDetails userDetails,
-                                                                   @PathVariable UUID id) {
+                                                                   @PathVariable @NotNull UUID id) {
         return ResponseEntity.ok(categoryService.getCategory(userDetails.getUsername(), id));
     }
 
@@ -69,7 +73,7 @@ public class CategoryController {
     })
     @PostMapping()
     public ResponseEntity<Void> createCategory(@AuthenticationPrincipal UserDetails userDetails,
-                                               @RequestBody CategoryRequestDto dto) {
+                                               @RequestBody @Valid CategoryRequestDto dto) {
         categoryService.createCategory(userDetails.getUsername(), dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -84,8 +88,8 @@ public class CategoryController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateCategory(@AuthenticationPrincipal UserDetails userDetails,
-                                               @PathVariable UUID id,
-                                               @RequestBody CategoryRequestDto dto) {
+                                               @PathVariable @NotNull UUID id,
+                                               @RequestBody @Valid CategoryRequestDto dto) {
         categoryService.updateCategory(id, userDetails.getUsername(), dto);
         return ResponseEntity.noContent().build();
     }
@@ -100,7 +104,7 @@ public class CategoryController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@AuthenticationPrincipal UserDetails userDetails,
-                                               @PathVariable UUID id) {
+                                               @PathVariable @NotNull UUID id) {
         categoryService.deleteCategory(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
