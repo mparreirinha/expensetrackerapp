@@ -24,19 +24,22 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
+    private final CategoryMapper categoryMapper;
 
     public CategoryService(CategoryRepository categoryRepository,
                              UserRepository userRepository,
-                             TransactionRepository transactionRepository) {
+                             TransactionRepository transactionRepository,
+                             CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.transactionRepository = transactionRepository;
+        this.categoryMapper = categoryMapper;
     }
 
     @Transactional
     public void createCategory(String username, CategoryRequestDto dto) {
         User user = getUserByUsername(username);
-        Category category = CategoryMapper.INSTANCE.toCategory(dto);
+        Category category = categoryMapper.toCategory(dto);
         category.setUser(user);
         categoryRepository.save(category);
     }
@@ -44,14 +47,14 @@ public class CategoryService {
     public List<CategoryResponseDto> getCategories(String username) {
         User user = getUserByUsername(username);
         List<Category> categories = categoryRepository.findByUser(user);
-        return CategoryMapper.INSTANCE.toCategoryResponseDtoList(categories);
+        return categoryMapper.toCategoryResponseDtoList(categories);
     }
 
     public CategoryResponseDto getCategory(String username, UUID id) {
         Category category = findCategoryById(id);
         if (!category.getUser().getUsername().equals(username))
             throw new ForbiddenException("You do not have access to this category");
-        return CategoryMapper.INSTANCE.toCategoryResponseDto(category);
+        return categoryMapper.toCategoryResponseDto(category);
     }
 
     @Transactional

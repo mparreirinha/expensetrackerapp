@@ -5,14 +5,11 @@ import com.parreirinha.expensetrackerapp.category.dto.CategoryRequestDto;
 import com.parreirinha.expensetrackerapp.category.dto.CategoryResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CategoryMapper {
-
-    CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)

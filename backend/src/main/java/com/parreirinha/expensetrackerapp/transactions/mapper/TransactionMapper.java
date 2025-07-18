@@ -6,14 +6,11 @@ import com.parreirinha.expensetrackerapp.transactions.dto.TransactionRequestDto;
 import com.parreirinha.expensetrackerapp.transactions.dto.TransactionResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper(uses = CategoryMapper.class)
+@Mapper(uses = CategoryMapper.class, componentModel = "spring")
 public interface TransactionMapper {
-
-    TransactionMapper INSTANCE = Mappers.getMapper(TransactionMapper.class);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)

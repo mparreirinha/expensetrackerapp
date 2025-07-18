@@ -24,24 +24,27 @@ public class UserAdminService {
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
     private final TokenService tokenService;
+    private final UserMapper userMapper;
 
     public UserAdminService(UserRepository userRepository,
                     CategoryRepository categoryRepository,
                     TransactionRepository transactionRepository,
-                    TokenService tokenService) {
+                    TokenService tokenService,
+                    UserMapper userMapper) {
     
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.transactionRepository = transactionRepository;
         this.tokenService = tokenService;
+        this.userMapper = userMapper;
     }
 
     public List<UserAdminResponseDto> getUsers() {
-        return UserMapper.INSTANCE.toUserAdminResponseDtoList(userRepository.findAll());
+        return userMapper.toUserAdminResponseDtoList(userRepository.findAll());
     }
 
     public UserAdminResponseDto getUser(UUID id) {
-        return UserMapper.INSTANCE.toUserAdminResponseDto(getUserById(id));
+        return userMapper.toUserAdminResponseDto(getUserById(id));
     }
 
     @Transactional

@@ -24,23 +24,26 @@ public class UserSelfService {
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
     private final TokenService tokenService;
+    private final UserMapper userMapper;
 
     public UserSelfService(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
         CategoryRepository categoryRepository,
         TransactionRepository transactionRepository,
-        TokenService tokenService
+        TokenService tokenService,
+        UserMapper userMapper
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.categoryRepository = categoryRepository;
         this.transactionRepository = transactionRepository;
         this.tokenService = tokenService;
+        this.userMapper = userMapper;
     }
 
     public UserResponseDto getUser(String username) {
-        return UserMapper.INSTANCE.toUserResponseDto(getUserByUsername(username));
+        return userMapper.toUserResponseDto(getUserByUsername(username));
     }
 
     @Transactional

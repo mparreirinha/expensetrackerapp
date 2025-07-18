@@ -27,13 +27,16 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final TransactionMapper transactionMapper;
 
     public TransactionService(TransactionRepository transactionRepository,
                               UserRepository userRepository,
-                              CategoryRepository categoryRepository) {
+                              CategoryRepository categoryRepository,
+                              TransactionMapper transactionMapper) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.transactionMapper = transactionMapper;
     }
 
     @Transactional
@@ -42,7 +45,7 @@ public class TransactionService {
         Category category = null;
         if (dto.categoryId() != null)
            category = getCategoryById(dto.categoryId());
-        Transaction transaction = TransactionMapper.INSTANCE.toTransaction(dto);
+        Transaction transaction = transactionMapper.toTransaction(dto);
         transaction.setCategory(category);
         transaction.setUser(user);
         transactionRepository.save(transaction);
@@ -50,14 +53,14 @@ public class TransactionService {
 
     public List<TransactionResponseDto> getTransactions(String username) {
         User user = getUserByUsername(username);
-        return TransactionMapper.INSTANCE.toTransactionResponseDtoList(getTransactionsByUser(user));
+        return transactionMapper.toTransactionResponseDtoList(getTransactionsByUser(user));
     }
 
     public TransactionResponseDto getTransaction(String username, UUID id) {
         Transaction transaction = getTransactionById(id);
         if (!transaction.getUser().getUsername().equals(username))
             throw new ForbiddenException("You do not have access to this transaction");
-        return TransactionMapper.INSTANCE.toTransactionResponseDto(transaction);
+        return transactionMapper.toTransactionResponseDto(transaction);
     }
 
     @Transactional
