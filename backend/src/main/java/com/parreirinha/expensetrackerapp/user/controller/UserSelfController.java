@@ -40,6 +40,9 @@ public class UserSelfController {
     })
     @GetMapping()
     public ResponseEntity<UserResponseDto> getUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
         UserResponseDto userResponseDto = userSelfService.getUser(userDetails.getUsername());
         return ResponseEntity.ok(userResponseDto);
     }
@@ -56,6 +59,9 @@ public class UserSelfController {
     public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserDetails userDetails,
                                                  @RequestBody @Valid ChangePasswordDto changePasswordDto, 
                                                  @RequestHeader("Authorization") String token) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
         userSelfService.changePassword(userDetails.getUsername(), changePasswordDto);
         jwtService.revokeToken(token);
         return ResponseEntity.ok("Password changed successfully");
@@ -70,6 +76,9 @@ public class UserSelfController {
     })
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteSelf(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
         userSelfService.deleteSelf(userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
