@@ -38,3 +38,5 @@ backend/build/
 
 ### Ambiente ###
 .env
+init-db.sh
+realm-export.json

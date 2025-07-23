@@ -5,6 +5,5 @@ import java.util.UUID;
 public record UserAdminResponseDto(
         UUID id,
         String username,
-        String email,
-        String role
+        String email
 ) {}

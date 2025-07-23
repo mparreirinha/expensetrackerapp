@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,73 +39,40 @@ public class CategoryController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Get all categories", description = "Returns all categories for the authenticated user")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Categories retrieved successfully"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "text/plain"))
-    })
     @GetMapping()
-    public ResponseEntity<List<CategoryResponseDto>> getCategories(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(categoryService.getCategories(userDetails.getUsername()));
+    public ResponseEntity<List<CategoryResponseDto>> getCategories(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(categoryService.getCategories(jwt.getClaimAsString("preferred_username")));
     }
 
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Get category by ID", description = "Returns a category by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Category retrieved successfully"),
-        @ApiResponse(responseCode = "403", description = "Access denied to this category", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "404", description = "Category not found", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "text/plain"))
-    })
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDto> getCategory(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<CategoryResponseDto> getCategory(@AuthenticationPrincipal Jwt jwt,
                                                                    @PathVariable @NotNull UUID id) {
-        return ResponseEntity.ok(categoryService.getCategory(userDetails.getUsername(), id));
+        return ResponseEntity.ok(categoryService.getCategory(jwt.getClaimAsString("preferred_username"), id));
     }
 
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Create category", description = "Creates a new category for the authenticated user")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Category created successfully"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "text/plain"))
-    })
     @PostMapping()
-    public ResponseEntity<Void> createCategory(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<Void> createCategory(@AuthenticationPrincipal Jwt jwt,
                                                @RequestBody @Valid CategoryRequestDto dto) {
-        categoryService.createCategory(userDetails.getUsername(), dto);
+        categoryService.createCategory(jwt.getClaimAsString("preferred_username"), dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Update category", description = "Updates a category by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Category updated successfully"),
-        @ApiResponse(responseCode = "403", description = "Access denied to update this category", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "404", description = "Category not found", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "text/plain"))
-    })
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCategory(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<Void> updateCategory(@AuthenticationPrincipal Jwt jwt,
                                                @PathVariable @NotNull UUID id,
                                                @RequestBody @Valid CategoryRequestDto dto) {
-        categoryService.updateCategory(id, userDetails.getUsername(), dto);
+        categoryService.updateCategory(id, jwt.getClaimAsString("preferred_username"), dto);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('USER')")
-    @Operation(summary = "Delete category", description = "Deletes a category by its ID and unsets it from transactions")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Category deleted successfully"),
-        @ApiResponse(responseCode = "403", description = "Access denied to delete this category", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "404", description = "Category not found", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(mediaType = "text/plain"))
-    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<Void> deleteCategory(@AuthenticationPrincipal Jwt jwt,
                                                @PathVariable @NotNull UUID id) {
-        categoryService.deleteCategory(id, userDetails.getUsername());
+        categoryService.deleteCategory(id, jwt.getClaimAsString("preferred_username"));
         return ResponseEntity.noContent().build();
     }
 

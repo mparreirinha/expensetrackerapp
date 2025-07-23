@@ -8,8 +8,8 @@ A RESTful API built with **Spring Boot**, focused on personal expense management
 
 ## ⚙️ Tech Stack
 
-* Java 21 + Spring Boot
-* Spring Security + JWT
+* Java 17 + Spring Boot
+* Spring Security + JWT + Keycloak
 * PostgreSQL
 * Redis
 * Swagger (Springdoc OpenAPI)
@@ -33,23 +33,30 @@ git clone https://github.com/mparreirinha/expensetrackerapp
 cd expensetrackerapp
 ```
 
-### 3. Create the `.env` file
+### 3. Configure environment variables
 
-```env
-JWT_SECRET=your_secret
-JWT_EXPIRATION=your_expiration
-POSTGRES_DB=your_db_name
-POSTGRES_USER=your_user
-POSTGRES_PASSWORD=your_password
+Copy `.env.example` to `.env` and fill in the values for your environment. **Important:** The `KEYCLOAK_CLIENT_SECRET` must be filled after importing the realm in Keycloak (see below).
+
+```bash
+cp .env.example .env
+# Edit the .env file and fill in the required values
 ```
 
-### 4. Run the application
+### 4. Import the Keycloak realm
+
+Use the file `keycloak/realm-example.json` to import the realm configuration into Keycloak. **This file does not contain sensitive secrets.**
+
+After importing, go to the Keycloak admin panel, navigate to **Clients > expensetracker-backend > Credentials**, and copy the generated client secret. Paste this value into `KEYCLOAK_CLIENT_SECRET` in your `.env` file.
+
+> **Never commit `realm-export.json` with real secrets to Git!**
+
+### 5. Run the application
 
 ```bash
 docker-compose up --build
 ```
 
-### 5. Access the API
+### 6. Access the API
 
 * API Base: [http://localhost:8000](http://localhost:8000)
 * Swagger UI: [http://localhost:8000/swagger-ui.html](http://localhost:8000/swagger-ui.html)
@@ -137,14 +144,7 @@ Authorization: Bearer <your_token>
 
 ## 🧑‍💼 Default Admin User
 
-Upon first run, the application creates a default admin user:
-
-| Field    | Value               |
-| -------- | ------------------- |
-| Username | `admin`             |
-| Email    | `admin@example.com` |
-| Password | `admin`             |
-| Role     | `ADMIN`             |
+If you want a default admin user, create it manually in Keycloak after importing the realm, or export a realm with users for development only (never for production).
 
 ---
 
